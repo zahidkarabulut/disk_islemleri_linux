@@ -1,11 +1,7 @@
 SANAL SUNUCUYA EKLENEN/ARTIRILAN DİSKİ SUNUCUYU KAPATIP AÇMADAN GÖRMEK İÇİN AŞAĞIDAKİ KOMUT KULLANILIR 
-
 echo "- - -" > /sys/class/scsi_host/host0/scan                   //host0 dan başlanarak kaçtane host varsa taranabilir 
-
 echo "- - -" > /sys/class/scsi_host/host1/scan 
-
  
-
 Sanallaştırma ortamında bu sunucu için Sdb diskini büyütüp yeni eklenen alanı extend etmek için: 
 
 echo 1 > /sys/class/block/sdb/device/rescan 
