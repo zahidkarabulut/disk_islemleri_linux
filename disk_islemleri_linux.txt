@@ -8,8 +8,6 @@ echo 1 > /sys/class/block/sdb/device/rescan
 
 pvresize /dev/sdb 
 
- 
-
 DİSK GENİŞLETME 
 
 *Örneğin 500 gb lik bir sdb diski var ve  daha önce partititon yapılarak sdb1 500 gb olarak partititon yapılmış. Bu diski sanallaştırma tarafında 750 gb ye genişlettikten sonra: 
