@@ -1,0 +1,93 @@
+SANAL SUNUCUYA EKLENEN/ARTIRILAN DİSKİ SUNUCUYU KAPATIP AÇMADAN GÖRMEK İÇİN AŞAĞIDAKİ KOMUT KULLANILIR 
+
+echo "- - -" > /sys/class/scsi_host/host0/scan                   //host0 dan başlanarak kaçtane host varsa taranabilir 
+
+echo "- - -" > /sys/class/scsi_host/host1/scan 
+
+ 
+
+Sanallaştırma ortamında bu sunucu için Sdb diskini büyütüp yeni eklenen alanı extend etmek için: 
+
+echo 1 > /sys/class/block/sdb/device/rescan 
+
+pvresize /dev/sdb 
+
+ 
+
+DİSK GENİŞLETME 
+
+*Örneğin 500 gb lik bir sdb diski var ve  daha önce partititon yapılarak sdb1 500 gb olarak partititon yapılmış. Bu diski sanallaştırma tarafında 750 gb ye genişlettikten sonra: 
+
+ 
+
+echo 1 > /sys/class/block/sdb/device/rescan   //komutu ile sdb diskinin yeni boyutunun görüntülenmesi sağlanır. 
+
+ 
+
+fdisk -l   // eklenen alan kontrol edilir.  
+
+ 
+
+fdisk /dev/sdb   //komutu ile sdb2 adında yeni bir partition oluşturulur ve 8e(LVM) olarak label eklenir. 
+
+ 
+
+partprobe /dev/sdb    //bu komut ile yeni eklenen partitionun görülmesi sağlanır.  
+
+ 
+
+Sonrasında ilgili pv-vg-lv işlemleri yapılabilir. 
+
+ 
+
+ 
+
+100 gb bir sdb diskimizin olduğunu düşünelim, bu diski partititon yapmadan yani sdb diskini 500 gb a artırdığımızı düşünelim, bu durumda yapılacak işlemler 
+
+echo 1 > /sys/class/block/sdb/device/rescan 
+
+pvresize /dev/sdb 
+
+lvextend -l +10000 /dev/vgdeneme/lvdeneme 
+
+resize2fs /dev/mapper/vgdeneme-lvdeneme         //xfs ise mkfs.xfs kullanılır 
+
+ 
+
+ 
+
+ÖRNEK KOMUTLAR 
+
+ fdisk /dev/sdb      //sdb diskinde yeni bir partition oluşturmak için kullanılır. 
+
+pvcreate /dev/sdb2    //pv oluşturulur  
+
+vgcreate vg_deneme /dev/sdb2      //vg oluşturulur  
+
+vgextend vg_deneme /dev/sdb2    //vgextend için  
+
+lvcreate -n lv_deneme -L+5GB vg_deneme    // lv oluşturulur  
+
+lvextend -L+5GB /dev/vg_deneme/lv_deneme    //lv extend için 
+
+lvextend -l +100%FREE /dev/vg_adı/lv_adı    (örn: /dev/ol/root)   //komutu ile, root lv sine vgdeki tüm boş alan ekleme yapılır.  
+
+mkfs.xfs /dev/mapper/vg_deneme-lv_deneme     //xfs lv formatlama 
+
+resize2fs /dev/mapper/vg_deneme-lv_deneme     //ext4 formatlama 
+
+xfs_grows /dev/vg_deneme/lv_deneme   //xfs formatında extend edilmiş lv ye eklenen alanın görğnmesi sağlanır 
+
+resize2fs /dev/vg_deneme/lv_deneme    //ext4 formatında extend edilmiş lv ye eklenen alanın görğnmesi sağlanır 
+
+mount /dev/mapper/vg_deneme-lv_deneme /root/denemeklasor    //lv mount edilir   
+
+/dev/mapper/vg_deneme-lv_deneme     /deneme_lvm       ext4    defaults        0 0            //otomatik mount için fstab a  bu şekilde yazılır 
+
+ 
+
+partprobe /dev/sdi  ile Yeni oluşturduğun partition görünür hale gelmesi sağlanabilir(örneğin yeni bir partititon oluşturdun ve lsblk ile göremedn bunu yaparak görünmesini sağlayabilirsin) 
+
+ 
+
+ 
